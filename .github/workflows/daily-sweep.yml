@@ -2,7 +2,7 @@ name: Daily Gulf Sweep
 
 on:
   schedule:
-    - cron: '0 3 * * *'
+    - cron: '0 6 * * *'   # 09:00 Saudi time (AST, UTC+3)
   workflow_dispatch:
 
 jobs:
@@ -25,4 +25,5 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          WEB_SEARCH_MAX_USES: '5'
         run: node scripts/run-sweep.mjs
