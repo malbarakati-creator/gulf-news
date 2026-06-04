@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gulf Morning Sweep</title>
+<style>
+:root {
+  --bg: #f8f5d7;
+  --ink: #1a1a1a;
+  --ink-soft: #555;
+  --paper: #fffef8;
+  --line: #e3dfc0;
+  --signal: #ffe600;
+  --signal-deep: #d4be00;
+  --c-new: #d8f0d8;
+  --c-has: #f0e2d2;
+  --c-adv: #d6e6f5;
+  --serif: 'Georgia', 'Times New Roman', serif;
+  --sans: 'Helvetica Neue', 'Arial', sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+.wrap {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  min-height: 100vh;
+  padding: 28px clamp(16px, 4vw, 56px) 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.masthead {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  flex-wrap: wrap; gap: 16px;
+  border-bottom: 3px solid var(--ink);
+  padding-bottom: 18px;
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--signal);
+  border: 2px solid var(--ink);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 4px rgba(255,230,0,0.25);
+}
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700; margin: 0; letter-spacing: -0.5px;
+}
+.runbox { display: flex; align-items: center; gap: 14px; }
+.lastrun { font-size: 12px; color: var(--ink-soft); }
+.runbtn {
+  background: var(--ink); color: var(--signal);
+  border: none; padding: 12px 22px;
+  font-family: var(--sans); font-weight: 700; font-size: 14px;
+  letter-spacing: 0.5px; cursor: pointer; border-radius: 2px;
+  transition: transform 0.12s ease, background 0.2s;
+}
+.runbtn:hover { transform: translateY(-1px); background: #000; }
+.runbtn:disabled { opacity: 0.55; cursor: default; transform: none; }
+.runbtn.ghost {
+  background: transparent; color: var(--ink-soft);
+  border: 1px solid var(--line); font-weight: 600;
+}
+.runbtn.ghost:hover { background: var(--paper); color: var(--ink); }
+.statusbar {
+  background: var(--paper); border: 1px solid var(--line);
+  border-left: 4px solid var(--signal);
+  padding: 12px 16px; margin-top: 18px; font-size: 13.5px;
+  color: var(--ink-soft); line-height: 1.5; border-radius: 3px;
+}
+.statusbar strong { color: var(--ink); }
+.statusbar.err { border-left-color: #a33; }
+.filters {
+  display: flex; flex-wrap: wrap; gap: 0;
+  margin: 22px 0 14px;
+  border-bottom: 1px solid var(--line);
+}
+.chip {
+  background: transparent; border: none;
+  border-bottom: 2px solid transparent;
+  padding: 9px 16px; font-size: 13px; cursor: pointer;
+  color: var(--ink-soft); margin-bottom: -1px;
+  font-family: var(--sans); transition: color 0.15s, border-color 0.15s;
+}
+.chip:hover { color: var(--ink); }
+.chip-on {
+  color: var(--ink); font-weight: 700;
+  border-bottom: 2px solid var(--ink);
+}
+.legend {
+  display: flex; flex-wrap: wrap; gap: 18px;
+  font-size: 12px; color: var(--ink-soft);
+  padding: 10px 0 22px; border-bottom: 1px solid var(--line);
+}
+.leg { display: inline-flex; align-items: center; gap: 5px; }
+.leg-glyph { font-size: 13px; }
+.caveat { font-style: italic; margin-left: auto; }
+.empty { text-align: center; padding: 50px 20px; }
+.empty-sub {
+  font-size: 15px; color: var(--ink-soft);
+  max-width: 480px; margin: 0 auto; line-height: 1.6;
+}
+.tier { margin-top: 38px; }
+.tier-head {
+  display: flex; align-items: baseline; gap: 14px;
+  border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 18px;
+}
+.tier-head h2 { font-family: var(--serif); font-size: 22px; margin: 0; font-weight: 700; }
+.tier-note { font-size: 12px; color: var(--ink-soft); flex: 1; }
+.tier-count {
+  background: var(--signal); color: var(--ink);
+  font-weight: 700; font-size: 12px; padding: 2px 9px; border-radius: 12px;
+}
+.tier-empty {
+  font-size: 14px; color: var(--ink-soft); font-style: italic;
+  padding: 4px 2px 8px;
+}
+.cards {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+.card {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 4px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 9px;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.card:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+  border-color: var(--signal-deep);
+}
+.card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.tag {
+  font-size: 10.5px; font-weight: 700; padding: 3px 8px;
+  border-radius: 3px; color: var(--ink); white-space: nowrap;
+}
+.meta { font-size: 11px; color: var(--ink-soft); text-align: right; }
+.directional { color: var(--signal-deep); font-weight: 700; }
+.headline {
+  font-family: var(--serif); font-size: 18px; line-height: 1.3;
+  color: var(--ink); text-decoration: none; font-weight: 700;
+}
+.headline:hover { text-decoration: underline; text-decoration-color: var(--signal-deep); }
+.sowhat { font-size: 13.5px; color: var(--ink-soft); margin: 0; line-height: 1.5; font-style: italic; }
+.card-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: auto; padding-top: 8px; border-top: 1px dotted var(--line);
+}
+.src { font-size: 12px; font-weight: 700; }
+.beat-tag {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--ink-soft); background: var(--bg); padding: 2px 7px; border-radius: 3px;
+}
+.foot {
+  margin-top: 50px; padding-top: 18px; border-top: 1px solid var(--line);
+  font-size: 11.5px; color: var(--ink-soft); text-align: center; line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+const BEATS = [
+  { id: "all", label: "All" },
+  { id: "energy", label: "Energy" },
+  { id: "sovereign", label: "Sovereign capital" },
+  { id: "markets", label: "Markets" },
+  { id: "tech", label: "Tech / AI" },
+  { id: "realestate", label: "Real estate" },
+  { id: "aviation", label: "Aviation" },
+  { id: "culture", label: "Culture & sport" },
+];
+
+const TIERS = [
+  { id: "must", label: "Must-reads", note: "Squarely the vertical, freshest first" },
+  { id: "notable", label: "Also notable", note: "Secondary hard news, themed — all six GCC states" },
+  { id: "culture", label: "Culture, lifestyle & sport", note: "Branched-out beat — openings with a hook", always: true },
+  { id: "radar", label: "On the radar", note: "Fresh but developing / single-sourced" },
+];
+
+const TAGS = {
+  new: { glyph: "🆕", label: "New to Semafor", color: "var(--c-new)" },
+  has: { glyph: "🔄", label: "Semafor has it — new development", color: "var(--c-has)" },
+  advances: { glyph: "📈", label: "Advances a story", color: "var(--c-adv)" },
+};
+
+let items = [];
+let activeBeat = "all";
+let generatedAt = null;
+let phase = "loading";   // loading | ready | empty | error | running
+let statusMsg = "";
+let adminKey = null;     // held only in memory for this browser session
+
+function timeAgo(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const days = Math.round((Date.now() - d.getTime()) / 86400000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  return days + "d ago";
+}
+
+function fmtStamp(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  return d.toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+// --- data ----------------------------------------------------------------
+async function loadLatest() {
+  phase = "loading";
+  statusMsg = "";
+  render();
+  try {
+    const res = await fetch("/api/latest", { cache: "no-store" });
+    const data = await res.json();
+    items = Array.isArray(data.items) ? data.items : [];
+    generatedAt = data.generatedAt || null;
+    if (data.status === "no-sweep-yet") {
+      phase = "empty";
+      statusMsg = "No sweep stored yet. The first one runs on the daily schedule — or hit “Force a fresh sweep” to run it now.";
+    } else if (!items.length) {
+      phase = "empty";
+      statusMsg = "The last sweep came back empty. Try “Force a fresh sweep,” or check back after the morning run.";
+    } else {
+      phase = "ready";
+    }
+  } catch (e) {
+    phase = "error";
+    statusMsg = "Couldn’t reach the server. Refresh in a moment.";
+  }
+  render();
+}
+
+// Quiet background refresh: re-checks the stored sweep without flashing the
+// "loading" state, and only re-renders if something actually changed. Used by
+// the auto-refresh timer and when the tab regains focus.
+async function quietLoad() {
+  if (phase === "loading" || phase === "running") return; // don't fight an active action
+  try {
+    const res = await fetch("/api/latest", { cache: "no-store" });
+    const data = await res.json();
+    const newItems = Array.isArray(data.items) ? data.items : [];
+    const changed = (data.generatedAt || null) !== generatedAt || newItems.length !== items.length;
+    if (!changed) return;
+    items = newItems;
+    generatedAt = data.generatedAt || null;
+    phase = items.length ? "ready" : "empty";
+    if (items.length) statusMsg = "";
+    render();
+  } catch (e) { /* stay on the last good board */ }
+}
+
+async function forceSweep() {
+  if (!adminKey) {
+    adminKey = window.prompt("Enter the sweep key (CRON_SECRET) to run a fresh sweep now:");
+    if (!adminKey) return;
+  }
+  phase = "running";
+  statusMsg = "Running a fresh sweep across the sources — this can take up to a minute…";
+  render();
+  try {
+    const res = await fetch("/api/sweep", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + adminKey },
+    });
+    if (res.status === 401) {
+      adminKey = null;
+      phase = items.length ? "ready" : "empty";
+      statusMsg = "That key didn’t match. Try again.";
+      render();
+      return;
+    }
+    const data = await res.json();
+    if (!res.ok) {
+      phase = items.length ? "ready" : "error";
+      statusMsg = "Sweep didn’t complete (" + esc(data.error || res.status) + "). The stored board is unchanged; the daily run will retry.";
+      render();
+      return;
+    }
+    items = Array.isArray(data.items) ? data.items : [];
+    generatedAt = data.generatedAt || new Date().toISOString();
+    phase = items.length ? "ready" : "empty";
+    statusMsg = items.length ? "" : "Fresh sweep returned no items — likely a quiet day.";
+  } catch (e) {
+    phase = items.length ? "ready" : "error";
+    statusMsg = "Sweep request failed or timed out. The stored board is unchanged.";
+  }
+  render();
+}
+
+// --- view ----------------------------------------------------------------
+function render() {
+  const app = document.getElementById("app");
+  const inBeat = function (i) { return activeBeat === "all" || i.beat === activeBeat; };
+  const filtered = function (tier) {
+    return items.filter(function (i) { return i.tier === tier && inBeat(i); });
+  };
+  const busy = phase === "loading" || phase === "running";
+
+  let html = "";
+
+  // masthead
+  html += '<header class="masthead"><div class="brand"><span class="dot"></span><div><h1>Gulf Morning Sweep</h1></div></div><div class="runbox">';
+  if (generatedAt) {
+    html += '<span class="lastrun">Updated ' + esc(fmtStamp(generatedAt)) + '</span>';
+  }
+  html += '<button class="runbtn ghost" id="refreshBtn"' + (busy ? " disabled" : "") + '>' + (phase === "loading" ? "Loading…" : "Refresh") + '</button>';
+  html += '<button class="runbtn" id="forceBtn"' + (busy ? " disabled" : "") + '>' + (phase === "running" ? "Sweeping…" : "Force a fresh sweep") + '</button>';
+  html += '</div></header>';
+
+  // status / error bar
+  if (statusMsg) {
+    html += '<div class="statusbar' + (phase === "error" ? " err" : "") + '">' + esc(statusMsg) + '</div>';
+  }
+
+  // filters
+  html += '<div class="filters" role="tablist" aria-label="Filter by beat">';
+  BEATS.forEach(function (b) {
+    html += '<button role="tab" class="chip ' + (activeBeat === b.id ? "chip-on" : "") + '" data-beat="' + b.id + '">' + esc(b.label) + '</button>';
+  });
+  html += '</div>';
+
+  // legend
+  html += '<div class="legend">';
+  Object.keys(TAGS).forEach(function (k) {
+    html += '<span class="leg"><span class="leg-glyph">' + TAGS[k].glyph + '</span> ' + esc(TAGS[k].label) + '</span>';
+  });
+  html += '<span class="leg caveat">Cross-check sees the public Semafor site only</span></div>';
+
+  if (phase === "loading") {
+    html += '<div class="empty"><p class="empty-sub">Loading today’s board…</p></div>';
+  } else {
+    // tiers
+    TIERS.forEach(function (tier) {
+      const list = filtered(tier.id);
+      if (!list.length && !tier.always) return; // hide empty non-mandatory tiers
+      html += '<section class="tier"><div class="tier-head"><h2>' + esc(tier.label) + '</h2><span class="tier-note">' + esc(tier.note) + '</span><span class="tier-count">' + list.length + '</span></div>';
+      if (!list.length) {
+        html += '<p class="tier-empty">Nothing fresh today.</p>';
+      } else {
+        html += '<div class="cards">';
+        list.forEach(function (it) {
+          const tag = TAGS[it.tag];
+          html += '<article class="card"><div class="card-top">';
+          html += '<span class="tag" style="background:' + (tag ? tag.color : "#eee") + '">' + (tag ? tag.glyph + " " + esc(tag.label) : esc(it.tag)) + '</span>';
+          html += '<span class="meta">' + esc(it.lang) + ' · ' + timeAgo(it.date) + (it.directional ? '<span class="directional"> · directional</span>' : '') + '</span>';
+          html += '</div>';
+          html += '<a class="headline" href="' + esc(it.url) + '" target="_blank" rel="noreferrer">' + esc(it.headline) + '</a>';
+          if (it.soWhat) html += '<p class="sowhat">' + esc(it.soWhat) + '</p>';
+          const beatLabel = (BEATS.find(function (b) { return b.id === it.beat; }) || {}).label || it.beat;
+          html += '<div class="card-foot"><span class="src">' + esc(it.source) + '</span><span class="beat-tag">' + esc(beatLabel) + '</span></div>';
+          html += '</article>';
+        });
+        html += '</div>';
+      }
+      html += '</section>';
+    });
+  }
+
+  html += '<footer class="foot">Live reader dashboard · Claude runs the sweep on a daily schedule · public-site cross-check only.</footer>';
+
+  app.innerHTML = html;
+
+  // wire up events
+  const refreshBtn = document.getElementById("refreshBtn");
+  if (refreshBtn) refreshBtn.onclick = loadLatest;
+  const forceBtn = document.getElementById("forceBtn");
+  if (forceBtn) forceBtn.onclick = forceSweep;
+  document.querySelectorAll(".chip").forEach(function (btn) {
+    btn.onclick = function () { activeBeat = btn.getAttribute("data-beat"); render(); };
+  });
+}
+
+loadLatest();
+
+// Auto-refresh: silently re-check every 10 minutes, and whenever the tab is
+// brought back into focus, so a board left open on a screen stays current.
+setInterval(quietLoad, 10 * 60 * 1000);
+document.addEventListener("visibilitychange", function () {
+  if (document.visibilityState === "visible") quietLoad();
+});
+</script>
+</body>
+</html>
