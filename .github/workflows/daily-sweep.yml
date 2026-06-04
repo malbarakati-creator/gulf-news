@@ -12,18 +12,16 @@ jobs:
     steps:
       - name: Check out the code
         uses: actions/checkout@v4
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Install dependencies
         run: npm install
-
       - name: Run the sweep
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
-          WEB_SEARCH_MAX_USES: '20'
+          WEB_SEARCH_MAX_USES: '30'
+          RECENCY_DAYS: '2'
         run: node scripts/run-sweep.mjs
