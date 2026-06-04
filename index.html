@@ -33,7 +33,7 @@ body { margin: 0; }
 .masthead {
   display: flex; justify-content: space-between; align-items: flex-end;
   flex-wrap: wrap; gap: 16px;
-  border-bottom: 3px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
   padding-bottom: 18px;
 }
 .brand { display: flex; align-items: center; gap: 14px; }
@@ -103,16 +103,18 @@ h1 {
   font-size: 15px; color: var(--ink-soft);
   max-width: 480px; margin: 0 auto; line-height: 1.6;
 }
-.tier { margin-top: 38px; }
+.tier { margin-top: 44px; }
 .tier-head {
-  display: flex; align-items: baseline; gap: 14px;
-  border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 18px;
+  display: flex; align-items: baseline; gap: 12px;
+  border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 20px;
 }
-.tier-head h2 { font-family: var(--serif); font-size: 22px; margin: 0; font-weight: 700; }
-.tier-note { font-size: 12px; color: var(--ink-soft); flex: 1; }
+.tier-head h2 {
+  font-family: var(--serif); font-size: 21px; margin: 0; font-weight: 700;
+  letter-spacing: -0.2px;
+}
 .tier-count {
-  background: var(--signal); color: var(--ink);
-  font-weight: 700; font-size: 12px; padding: 2px 9px; border-radius: 12px;
+  margin-left: auto; color: var(--ink-soft);
+  font-weight: 600; font-size: 12px; font-variant-numeric: tabular-nums;
 }
 .tier-empty {
   font-size: 14px; color: var(--ink-soft); font-style: italic;
@@ -124,13 +126,12 @@ h1 {
 }
 .card {
   background: var(--paper); border: 1px solid var(--line);
-  border-radius: 4px; padding: 16px 18px;
-  display: flex; flex-direction: column; gap: 9px;
-  transition: box-shadow 0.15s, transform 0.15s;
+  border-radius: 6px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
 }
 .card:hover {
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 2px 14px rgba(0,0,0,0.06);
   border-color: var(--signal-deep);
 }
 .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -347,7 +348,7 @@ function render() {
     TIERS.forEach(function (tier) {
       const list = filtered(tier.id);
       if (!list.length && !tier.always) return; // hide empty non-mandatory tiers
-      html += '<section class="tier"><div class="tier-head"><h2>' + esc(tier.label) + '</h2><span class="tier-note">' + esc(tier.note) + '</span><span class="tier-count">' + list.length + '</span></div>';
+      html += '<section class="tier"><div class="tier-head"><h2>' + esc(tier.label) + '</h2><span class="tier-count">' + list.length + '</span></div>';
       if (!list.length) {
         html += '<p class="tier-empty">Nothing fresh today.</p>';
       } else {
